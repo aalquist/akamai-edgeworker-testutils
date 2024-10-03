@@ -1,6 +1,3 @@
-import Request from "request";
-import Response from "response";
-
 export class VariableCounter {
     constructor(config = {}){
         this.count = 0;
@@ -53,66 +50,76 @@ export class VariableCounter {
     
 }
 
-export function mockRequestFactory(initPMVars = {}, intReqHeaders = {}, jsonbody ){
+export class EW_Mock_Factory {
 
-    const pmVarCounter = new VariableCounter();
-    let wasTerminatedCount = 0;
-
-    let PM_Vars = new Map();
-    Object.keys(initPMVars).forEach( k => { PM_Vars.set(k, initPMVars[k]); } );
-    
-    let reqHeaders = new Map();
-    Object.keys(intReqHeaders).forEach( k => { reqHeaders.set(k, intReqHeaders[k]); } );
-
-    //wire up mocks
-    let requestMock = new Request();
-    let responseMock = new Response();
-    requestMock.getVariable = jest.fn( (arg) => {
-        const returnThis =  PM_Vars.get(arg);
-        return returnThis;
-    });
-  
-    requestMock.setVariable = jest.fn((arg, val) => {
-        pmVarCounter.setVariable(arg, val);
-        PM_Vars.set(arg, val);
-    });
-  
-    requestMock.getHeader = jest.fn((arg) => {
-        const returnThis =  reqHeaders.get(arg);
-        return returnThis;
-    });
-  
-    requestMock.setHeader = jest.fn((arg, val) => {
-        reqHeaders.set(arg, val);
-    });
-
-    requestMock.getHeaders = jest.fn(() => {
-        const reqHeadersObj = Array.from(reqHeaders).reduce((acc, [key, value]) => {
-            acc[key.toLowerCase()] = value;
-            return acc;
-          }, {});
-        return reqHeadersObj;
-    });
-
-    requestMock.respondWith = jest.fn((arg1, arg2, arg3, arg4) => {
-        wasTerminatedCount = wasTerminatedCount + 1;
-    });
-
-    requestMock.wasTerminated = jest.fn(() => {
-       return wasTerminatedCount > 0;
-    });
-
-    if (jsonbody){
-        requestMock.json = jest.fn(() => {
-            return Promise.resolve(jsonbody);
-        });
-
+    constructor({Request, Response}){
+        this.RequestClass = Request;
+        this.ResponseClass = Response;
     }
-   
 
-    return { requestMock : requestMock, responseMock: responseMock, PM_Vars: PM_Vars, reqHeaders: reqHeaders, pmVarCounter:pmVarCounter };
-  
+    mockRequestFactory(initPMVars = {}, intReqHeaders = {}, jsonbody ){
+
+        const pmVarCounter = new VariableCounter();
+        let wasTerminatedCount = 0;
+    
+        let PM_Vars = new Map();
+        Object.keys(initPMVars).forEach( k => { PM_Vars.set(k, initPMVars[k]); } );
+        
+        let reqHeaders = new Map();
+        Object.keys(intReqHeaders).forEach( k => { reqHeaders.set(k, intReqHeaders[k]); } );
+    
+        let requestMock = new this.RequestClass();
+        let responseMock = new this.ResponseClass();
+
+        requestMock.getVariable = jest.fn( (arg) => {
+            const returnThis =  PM_Vars.get(arg);
+            return returnThis;
+        });
+      
+        requestMock.setVariable = jest.fn((arg, val) => {
+            pmVarCounter.setVariable(arg, val);
+            PM_Vars.set(arg, val);
+        });
+      
+        requestMock.getHeader = jest.fn((arg) => {
+            const returnThis =  reqHeaders.get(arg);
+            return returnThis;
+        });
+      
+        requestMock.setHeader = jest.fn((arg, val) => {
+            reqHeaders.set(arg, val);
+        });
+    
+        requestMock.getHeaders = jest.fn(() => {
+            const reqHeadersObj = Array.from(reqHeaders).reduce((acc, [key, value]) => {
+                acc[key.toLowerCase()] = value;
+                return acc;
+              }, {});
+            return reqHeadersObj;
+        });
+    
+        requestMock.respondWith = jest.fn((arg1, arg2, arg3, arg4) => {
+            wasTerminatedCount = wasTerminatedCount + 1;
+        });
+    
+        requestMock.wasTerminated = jest.fn(() => {
+           return wasTerminatedCount > 0;
+        });
+    
+        if (jsonbody){
+            requestMock.json = jest.fn(() => {
+                return Promise.resolve(jsonbody);
+            });
+    
+        }
+       
+    
+        return { requestMock : requestMock, responseMock: responseMock, PM_Vars: PM_Vars, reqHeaders: reqHeaders, pmVarCounter:pmVarCounter };
+      
+    }
+
 }
+
 
 export function mockEKV_Response(statuscode=200, response_headers={}, responseText=null){
     var mockEKVResponse = (arg) =>{
