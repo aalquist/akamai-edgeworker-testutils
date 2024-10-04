@@ -57,8 +57,8 @@ export class EW_Mock_Factory {
         this.ResponseClass = Response;
     }
 
-    mockRequestFactory(initPMVars = {}, intReqHeaders = {}, jsonbody ){
-
+    mockRequestFactory({initPMVars={}, intReqHeaders={}, jsonbody} = {} ){
+        
         const pmVarCounter = new VariableCounter();
         let wasTerminatedCount = 0;
     
@@ -66,7 +66,13 @@ export class EW_Mock_Factory {
         Object.keys(initPMVars).forEach( k => { PM_Vars.set(k, initPMVars[k]); } );
         
         let reqHeaders = new Map();
-        Object.keys(intReqHeaders).forEach( k => { reqHeaders.set(k, intReqHeaders[k]); } );
+        Object.keys(intReqHeaders).forEach( k => { 
+            if( typeof intReqHeaders[k] == "string" ){ //it should be an array but usefull for most header use cases
+                reqHeaders.set(k, [intReqHeaders[k] ]); 
+            } else {
+                reqHeaders.set(k, intReqHeaders[k]); 
+            }
+        } );
     
         let requestMock = new this.RequestClass();
         let responseMock = new this.ResponseClass();
@@ -113,7 +119,6 @@ export class EW_Mock_Factory {
     
         }
        
-    
         return { requestMock : requestMock, responseMock: responseMock, PM_Vars: PM_Vars, reqHeaders: reqHeaders, pmVarCounter:pmVarCounter };
       
     }
