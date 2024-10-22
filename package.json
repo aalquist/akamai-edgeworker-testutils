@@ -1,6 +1,6 @@
 {
     "name": "akamai-edgeworker-testutils",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "main": "test_utils.js",
     "type": "module",
     "devDependencies": {

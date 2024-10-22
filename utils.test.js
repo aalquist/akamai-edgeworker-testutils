@@ -41,7 +41,7 @@ describe('test suite - mockSRQ_Response', () => {
     jest.clearAllMocks();
   });
 
-  test('mockSRQ_Response', async () => {
+  test('mockSRQ_Response - text()', async () => {
 
     mockSRQ_Response({statuscode :200, response_headers: {"response_header" : "foo"}, responseText : "responseText"});
     const options = {"headers" : {}, "body": "body", "method": "GET", "timeout" : 1000 };
@@ -49,8 +49,52 @@ describe('test suite - mockSRQ_Response', () => {
     const subReqResponse = await httpRequest("/some-path", options);
     expect(subReqResponse.ok).toEqual(true);
     expect(subReqResponse.status).toEqual(200);
-    expect(subReqResponse.text()).toEqual("responseText");
+    expect(await subReqResponse.text()).toEqual("responseText");
     expect(subReqResponse.getHeader("response_header")).toEqual(["foo"]);
+
+  });
+
+  test('mockSRQ_Response - json()', async () => {
+
+    mockSRQ_Response({statuscode :200, response_headers: {"response_header" : "foo"}, responseText : "{}"});
+    const options = {"headers" : {}, "body": "body", "method": "GET", "timeout" : 1000 };
+    
+    const subReqResponse = await httpRequest("/some-path", options);
+    expect(subReqResponse.ok).toEqual(true);
+    expect(subReqResponse.status).toEqual(200);
+    expect(await subReqResponse.json()).toEqual({});
+    expect(subReqResponse.getHeader("response_header")).toEqual(["foo"]);
+
+  });
+
+  test('mockSRQ_Response - getHeaders() - 1', async () => {
+
+    mockSRQ_Response({statuscode :200, response_headers: {"response_header" : "foo"}});
+    const options = {"headers" : {}, "body": "body", "method": "GET", "timeout" : 1000 };
+    
+    const subReqResponse = await httpRequest("/some-path", options);
+    expect(subReqResponse.ok).toEqual(true);
+    expect(subReqResponse.status).toEqual(200);
+    expect(subReqResponse.getHeaders()).toEqual({"response_header" : ["foo"] });
+
+  });
+
+  test('mockSRQ_Response - getHeaders() - 2', async () => {
+
+    mockSRQ_Response({statuscode :200, response_headers: 
+        {
+          "response_header_1" : "foo1", 
+          "response_header_2" : ["foo2"],
+          "response_header_3" : ["foo3", "foo4"]
+        }
+      
+      });
+    const options = {"headers" : {}, "body": "body", "method": "GET", "timeout" : 1000 };
+    
+    const subReqResponse = await httpRequest("/some-path", options);
+    expect(subReqResponse.ok).toEqual(true);
+    expect(subReqResponse.status).toEqual(200);
+    expect(subReqResponse.getHeaders()).toEqual({"response_header_1" : ["foo1"], "response_header_2" : ["foo2"], "response_header_3" : ["foo3", "foo4"] });
 
   });
 
@@ -62,7 +106,7 @@ describe('test suite - mockSRQ_Response', () => {
     const subReqResponse = await httpRequest("/some-path", options);
     expect(subReqResponse.ok).toEqual(true);
     expect(subReqResponse.status).toEqual(200);
-    expect(subReqResponse.text()).toEqual("");
+    expect(await subReqResponse.text()).toEqual(""); //default to empty string?
     expect(subReqResponse.getHeader("response_header")).toEqual(undefined);
 
   });

@@ -166,7 +166,15 @@ export function mockSRQ_Response({statuscode, response_headers, responseText}  =
         return {
           status: statuscode,
           ok: statuscode === 200,
-          headers: response_headers,
+          getHeaders: () => {
+            const result = {};
+            for (const key in response_headers) {
+                if (response_headers.hasOwnProperty(key)) {
+                    result[key] = Array.isArray(response_headers[key]) ? response_headers[key] : [response_headers[key]];
+                }
+            }
+            return result;
+          },
           getHeader: (arg) => {
             const headers = response_headers[arg];
             if (!headers) {
@@ -176,7 +184,8 @@ export function mockSRQ_Response({statuscode, response_headers, responseText}  =
             // This is for demonstration; adjust based on your actual header storage format
             return Array.isArray(headers) ? headers : [headers];
           },
-          text: jest.fn( () => {return responseText; })
+          text: jest.fn( async () => responseText ),
+          json: jest.fn( async () => JSON.parse(responseText) )
         };
       };
     
