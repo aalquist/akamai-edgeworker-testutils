@@ -25,6 +25,9 @@ export class VariableCounter {
             }
         }
 
+        if (key.length > 32)
+            throw new Error("PMUSER variable length is greater than 32 characters")
+
         return {key:key, value:value};
     }
 
@@ -59,6 +62,8 @@ export class EW_Mock_Factory {
 
     mockRequestFactory({initPMVars={}, intReqHeaders={}, jsonbody} = {} ){
         
+        mockSetCookieModule();
+
         const pmVarCounter = new VariableCounter();
         let wasTerminatedCount = 0;
     
@@ -119,13 +124,13 @@ export class EW_Mock_Factory {
     
         }
        
-        return { requestMock : requestMock, responseMock: responseMock, PM_Vars: PM_Vars, reqHeaders: reqHeaders, pmVarCounter:pmVarCounter };
+        return { requestMock, responseMock, PM_Vars, reqHeaders, pmVarCounter };
       
     }
 
 }
 
-
+//deprecated
 export function mockEKV_Response(statuscode=200, response_headers={}, responseText=null){
     var mockEKVResponse = (arg) =>{
         return {
@@ -147,15 +152,18 @@ export function mockEKV_Response(statuscode=200, response_headers={}, responseTe
     var httpRequestModule = require("http-request");
     httpRequestModule.httpRequest = jest.fn().mockImplementation(mockEKVResponse);
 
-    return {mockEKVResponse:mockEKVResponse, httpRequestModule: httpRequestModule};
+    return {mockEKVResponse, httpRequestModule};
 }
 
 
-export function mockSRQ_Response(statuscode=200, response_headers={}, responseText=null, url=null){
+export function mockSRQ_Response({statuscode, response_headers, responseText}  = {}){
+
+    var statuscode = statuscode || 200;
+    var response_headers = response_headers || {};
+    var responseText = responseText || "";
 
     var mockSRQResponse = (arg) =>{
         return {
-          url: url,
           status: statuscode,
           ok: statuscode === 200,
           headers: response_headers,
@@ -174,10 +182,12 @@ export function mockSRQ_Response(statuscode=200, response_headers={}, responseTe
     
     var httpRequestModule = require("http-request");
     httpRequestModule.httpRequest = jest.fn().mockImplementation(mockSRQResponse);
-    return {mockSRQResponse:mockSRQResponse, httpRequestModule: httpRequestModule};
+    return {mockSRQResponse, httpRequestModule};
 }
 
-export function mockSRQ_Response_Error(error_text){
+export function mockSRQ_Response_Error({error_text} = {}){
+
+    var error_text = error_text || "mockSRQ_Response_Error";
 
     var mockSRQResponseErr = (arg) =>{
         throw new Error(error_text)
@@ -185,28 +195,65 @@ export function mockSRQ_Response_Error(error_text){
     
     var httpRequestModule = require("http-request");
     httpRequestModule.httpRequest = jest.fn().mockImplementation(mockSRQResponseErr);
-    return {mockSRQResponseErr:mockSRQResponseErr, httpRequestModule: httpRequestModule};
+    return {mockSRQResponseErr, httpRequestModule};
+}
+
+export function mockSetCookieModule(){
+    
+    let _cookieString = undefined;
+
+    var mockSetCookies = (cookieString) =>{
+        _cookieString = cookieString;
+        
+        return {
+            name: undefined,
+            value: undefined,
+            maxAge: undefined,
+            domain: undefined,
+            path: undefined,
+            expires: undefined,
+            httpOnly: false,
+            secure: false,
+            sameSite: undefined,
+            toHeader: jest.fn(()=> _cookieString ),
+        };
+
+      };
+    
+    var cookieModule = require("cookies");
+    cookieModule.SetCookie = jest.fn().mockImplementation(mockSetCookies);
+
+    return {cookieModule};
 }
 
 export function mockCookieModule(initCookies={}){
     let cookieJar = new Map();
     Object.keys(initCookies).forEach( k => { cookieJar.set(k, initCookies[k]); } );
    
+    var mockCookies = (cookieArray) =>{
 
-    var mockCookies = (arg) =>{
+        if(cookieArray){
+            for (const cookieString of cookieArray){
+                const _cookies = cookieString && cookieString?.length > 0 ? cookieString.split(';') : [];
+                _cookies.forEach(cookie => {
+                    const [key, value] = cookie.split('=').map(c => c.trim());
+                    cookieJar.set(key, value);
+                });
+            }
+        }
+
         return {
-            
-        toHeader: jest.fn(),
-        get: jest.fn(),
-        getAll: jest.fn(),
-        names: jest.fn( () => {return Array.from(cookieJar.keys()); }),
-        add: jest.fn(),
-        delete: jest.fn(),
+            toHeader: jest.fn(),
+            get: jest.fn(),
+            getAll: jest.fn(),
+            names: jest.fn( () => {return Array.from(cookieJar.keys()); }),
+            add: jest.fn(),
+            delete: jest.fn(),
         };
       };
     
     var cookieModule = require("cookies");
     cookieModule.Cookies = jest.fn().mockImplementation(mockCookies);
 
-    return {cookieModule:cookieModule};
+    return {cookieModule};
 }
