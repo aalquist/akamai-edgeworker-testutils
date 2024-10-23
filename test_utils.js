@@ -1,3 +1,5 @@
+import { Readable } from 'stream';
+
 export class VariableCounter {
     constructor(config = {}){
         this.count = 0;
@@ -162,8 +164,17 @@ export function mockSRQ_Response({statuscode, response_headers, responseText}  =
     var response_headers = response_headers || {};
     var responseText = responseText || "";
 
+    const readableStream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(responseText);
+          controller.close();
+        }
+    });
+
     var mockSRQResponse = (arg) =>{
+
         return {
+          body: readableStream,
           status: statuscode,
           ok: statuscode === 200,
           getHeaders: () => {

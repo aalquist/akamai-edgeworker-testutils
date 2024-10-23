@@ -52,6 +52,16 @@ describe('test suite - mockSRQ_Response', () => {
     expect(await subReqResponse.text()).toEqual("responseText");
     expect(subReqResponse.getHeader("response_header")).toEqual(["foo"]);
 
+    const bodyArray = [];
+
+    await subReqResponse.body.getReader().read().then(({ done, value }) => {
+      if (!done) {
+        bodyArray.push(value);
+      }
+    });
+
+    expect(bodyArray).toEqual(["responseText"]);
+
   });
 
   test('mockSRQ_Response - json()', async () => {
@@ -108,6 +118,16 @@ describe('test suite - mockSRQ_Response', () => {
     expect(subReqResponse.status).toEqual(200);
     expect(await subReqResponse.text()).toEqual(""); //default to empty string?
     expect(subReqResponse.getHeader("response_header")).toEqual(undefined);
+
+    const bodyArray = [];
+
+    await subReqResponse.body.getReader().read().then(({ done, value }) => {
+      if (!done) {
+        bodyArray.push(value);
+      }
+    });
+
+    expect(bodyArray).toEqual([""]);
 
   });
 
