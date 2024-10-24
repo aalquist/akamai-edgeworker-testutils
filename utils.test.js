@@ -3,6 +3,7 @@ const mockSRQ_Response_Error = require('./test_utils.js').mockSRQ_Response_Error
 const EW_Mock_Factory  = require('./test_utils.js').EW_Mock_Factory;
 const VariableCounter  = require('./test_utils.js').VariableCounter;
 const mockCookieModule = require('./test_utils.js').mockCookieModule;
+const streamToString  = require('./test_utils.js').streamToString;
 
 import { httpRequest } from 'http-request';
 import Request from "request";
@@ -52,15 +53,8 @@ describe('test suite - mockSRQ_Response', () => {
     expect(await subReqResponse.text()).toEqual("responseText");
     expect(subReqResponse.getHeader("response_header")).toEqual(["foo"]);
 
-    const bodyArray = [];
-
-    await subReqResponse.body.getReader().read().then(({ done, value }) => {
-      if (!done) {
-        bodyArray.push(value);
-      }
-    });
-
-    expect(bodyArray).toEqual(["responseText"]);
+    const response = await streamToString(subReqResponse.body);
+    expect(response).toEqual("responseText");
 
   });
 
@@ -74,6 +68,8 @@ describe('test suite - mockSRQ_Response', () => {
     expect(subReqResponse.status).toEqual(200);
     expect(await subReqResponse.json()).toEqual({});
     expect(subReqResponse.getHeader("response_header")).toEqual(["foo"]);
+    const response = await streamToString(subReqResponse.body);
+    expect(response).toEqual("{}");
 
   });
 
@@ -119,15 +115,8 @@ describe('test suite - mockSRQ_Response', () => {
     expect(await subReqResponse.text()).toEqual(""); //default to empty string?
     expect(subReqResponse.getHeader("response_header")).toEqual(undefined);
 
-    const bodyArray = [];
-
-    await subReqResponse.body.getReader().read().then(({ done, value }) => {
-      if (!done) {
-        bodyArray.push(value);
-      }
-    });
-
-    expect(bodyArray).toEqual([""]);
+    const response = await streamToString(subReqResponse.body);
+    expect(response).toEqual("");
 
   });
 

@@ -157,6 +157,20 @@ export function mockEKV_Response(statuscode=200, response_headers={}, responseTe
     return {mockEKVResponse, httpRequestModule};
 }
 
+export async function streamToString(stream){
+
+    const bodyArray = [];
+
+    await stream.getReader().read().then(({ done, value }) => {
+        if (!done) {
+          bodyArray.push(value);
+        }
+    });
+
+    const returnThis = bodyArray.join("");
+    return returnThis;
+    
+}
 
 export function mockSRQ_Response({statuscode, response_headers, responseText}  = {}){
 
