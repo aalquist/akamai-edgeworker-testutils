@@ -165,8 +165,31 @@ export function mockEKV_Response(statuscode=200, response_headers={}, responseTe
     return {mockEKVResponse, httpRequestModule};
 }
 
+async function streamUint8ArrayToString(stream){
+
+    const reader = stream.getReader();
+    const bodyArray = [];
+    let done = false;
+  
+    while (!done) {
+        const { value, done: isDone } = await reader.read();
+        if (value) {
+            const decoder = new TextDecoder();
+            const decodedValue = decoder.decode(value);
+            bodyArray.push(decodedValue);
+        }
+        done = isDone;
+    }
+
+    const returnThis = bodyArray.join("");
+    return returnThis;
+    
+}
+
+//deprecated, buggy/limited
 export async function streamToString(stream){
 
+    console.error("Stop using this function, its buggy and will be removed soon");
     const bodyArray = [];
 
     await stream.getReader().read().then(({ done, value }) => {
