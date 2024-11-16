@@ -225,7 +225,7 @@ describe('test suite - mockSRQ_Response', () => {
       const body = await requestMock.json();
     }
 
-    await expect(throwErrorAsync()).rejects.toThrow("Unexpected token 's', \"xyz\" is not valid JSON");
+    await expect(throwErrorAsync()).rejects.toThrow("Unexpected token 'x', \"xyz\" is not valid JSON");
     
 
   });
