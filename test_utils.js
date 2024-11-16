@@ -62,7 +62,7 @@ export class EW_Mock_Factory {
         this.ResponseClass = Response;
     }
 
-    mockRequestFactory({initPMVars={}, intReqHeaders={}, jsonbody} = {} ){
+    mockRequestFactory({initPMVars={}, intReqHeaders={}, jsonbody, textbody} = {} ){
         
         mockSetCookieModule();
 
@@ -121,9 +121,17 @@ export class EW_Mock_Factory {
     
         if (jsonbody){
             requestMock.json = jest.fn(() => {
-                return Promise.resolve(jsonbody);
+
+                const resolveThis = typeof jsonbody === "string" ? JSON.parse(jsonbody) : jsonbody;
+
+                return Promise.resolve(resolveThis);
             });
-    
+        }
+
+        if (textbody){
+            requestMock.text = jest.fn(() => {
+                return Promise.resolve(textbody);
+            });
         }
        
         return { requestMock, responseMock, PM_Vars, reqHeaders, pmVarCounter };

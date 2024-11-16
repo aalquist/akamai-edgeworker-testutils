@@ -162,6 +162,90 @@ describe('test suite - mockSRQ_Response', () => {
 
   });
 
+  test('mockRequestFactory json() - 1', async () => {
+
+    const intReqHeaders = {};
+    const initPMVars = {};
+
+    const jsonbody = {};
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const body = await requestMock.json();
+
+    expect(body).toEqual({});
+
+  });
+
+  test('mockRequestFactory json() - 2', async () => {
+
+    const intReqHeaders = {};
+    const initPMVars = {};
+
+    const jsonbody = '{}';
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const body = await requestMock.json();
+
+    expect(body).toEqual({});
+
+  });
+
+  test('mockRequestFactory json() - 3', async () => {
+
+    const intReqHeaders = {};
+    const initPMVars = {};
+
+    const jsonbody = null;
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const body = await requestMock.json();
+
+    expect(body).toEqual(undefined);
+
+  });
+
+  test('mockRequestFactory json() - 4', async () => {
+
+    const intReqHeaders = {};
+    const initPMVars = {};
+
+    const jsonbody = undefined;
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const body = await requestMock.json();
+
+    expect(body).toEqual(undefined);
+
+  });
+
+  test('mockRequestFactory json() - 5 error', async () => {
+
+    async function throwErrorAsync() {
+      const intReqHeaders = {};
+      const initPMVars = {};
+
+      const jsonbody = "xyz";
+      var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+      const body = await requestMock.json();
+    }
+
+    await expect(throwErrorAsync()).rejects.toThrow("Unexpected token 's', \"xyz\" is not valid JSON");
+    
+
+  });
+
+  test('mockRequestFactory text() - 1', async () => {
+
+    const intReqHeaders = {};
+    const initPMVars = {};
+
+    const textbody = "sometext";
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, textbody });
+    const body = await requestMock.text();
+
+    expect(body).toEqual("sometext");
+
+  });
+
+  
+
+
 
 });
 
