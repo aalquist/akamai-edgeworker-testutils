@@ -62,7 +62,7 @@ export class EW_Mock_Factory {
         this.ResponseClass = Response;
     }
 
-    mockRequestFactory({initPMVars={}, intReqHeaders={}, jsonbody, textbody} = {} ){
+    mockRequestFactory({initPMVars={}, intReqHeaders={}, requestBody} = {} ){
         
         mockSetCookieModule();
 
@@ -119,18 +119,18 @@ export class EW_Mock_Factory {
            return wasTerminatedCount > 0;
         });
     
-        if (jsonbody){
+        if (requestBody){
             requestMock.json = jest.fn(() => {
 
-                const resolveThis = typeof jsonbody === "string" ? JSON.parse(jsonbody) : jsonbody;
+                const resolveThis = JSON.parse(requestBody);
 
                 return Promise.resolve(resolveThis);
             });
         }
 
-        if (textbody){
+        if (requestBody){
             requestMock.text = jest.fn(() => {
-                return Promise.resolve(textbody);
+                return Promise.resolve(requestBody);
             });
         }
        
@@ -140,7 +140,6 @@ export class EW_Mock_Factory {
 
 }
 
-//deprecated
 export function mockEKV_Response(statuscode=200, response_headers={}, responseText=null){
     var mockEKVResponse = (arg) =>{
         return {
@@ -186,17 +185,20 @@ async function streamUint8ArrayToString(stream){
     
 }
 
-//deprecated, buggy/limited
+//streamOfStringsToString
 export async function streamToString(stream){
 
-    console.error("Stop using this function, its buggy and will be removed soon");
+    const reader = stream.getReader();
     const bodyArray = [];
-
-    await stream.getReader().read().then(({ done, value }) => {
-        if (!done) {
-          bodyArray.push(value);
+    let done = false;
+  
+    while (!done) {
+        const { value, done: isDone } = await reader.read();
+        if (value) {
+            bodyArray.push(value);
         }
-    });
+        done = isDone;
+    }
 
     const returnThis = bodyArray.join("");
     return returnThis;

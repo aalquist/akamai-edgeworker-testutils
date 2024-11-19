@@ -36,7 +36,7 @@ describe('test suite - mockSRQ_Response', () => {
 
 });
 
-describe('test suite - mockSRQ_Response', () => {
+describe('test suite', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -167,8 +167,8 @@ describe('test suite - mockSRQ_Response', () => {
     const intReqHeaders = {};
     const initPMVars = {};
 
-    const jsonbody = {};
-    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const requestBody = '{}';
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, requestBody });
     const body = await requestMock.json();
 
     expect(body).toEqual({});
@@ -180,11 +180,11 @@ describe('test suite - mockSRQ_Response', () => {
     const intReqHeaders = {};
     const initPMVars = {};
 
-    const jsonbody = '{}';
-    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const requestBody = null;
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, requestBody });
     const body = await requestMock.json();
 
-    expect(body).toEqual({});
+    expect(body).toEqual(undefined);
 
   });
 
@@ -193,35 +193,22 @@ describe('test suite - mockSRQ_Response', () => {
     const intReqHeaders = {};
     const initPMVars = {};
 
-    const jsonbody = null;
-    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+    const requestBody = undefined;
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, requestBody });
     const body = await requestMock.json();
 
     expect(body).toEqual(undefined);
 
   });
 
-  test('mockRequestFactory json() - 4', async () => {
-
-    const intReqHeaders = {};
-    const initPMVars = {};
-
-    const jsonbody = undefined;
-    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
-    const body = await requestMock.json();
-
-    expect(body).toEqual(undefined);
-
-  });
-
-  test('mockRequestFactory json() - 5 error', async () => {
+  test('mockRequestFactory json() - 4 error', async () => {
 
     async function throwErrorAsync() {
       const intReqHeaders = {};
       const initPMVars = {};
 
-      const jsonbody = "xyz";
-      var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, jsonbody });
+      const requestBody = "xyz";
+      var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, requestBody });
       const body = await requestMock.json();
     }
 
@@ -230,21 +217,18 @@ describe('test suite - mockSRQ_Response', () => {
 
   });
 
-  test('mockRequestFactory text() - 1', async () => {
+  test('mockRequestFactory text() - 5', async () => {
 
     const intReqHeaders = {};
     const initPMVars = {};
 
-    const textbody = "sometext";
-    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, textbody });
+    const requestBody = "sometext";
+    var { requestMock } = factory.mockRequestFactory({ initPMVars, intReqHeaders, requestBody });
     const body = await requestMock.text();
 
     expect(body).toEqual("sometext");
 
   });
-
-  
-
 
 
 });
