@@ -63,11 +63,11 @@ export class EW_Mock_Factory {
         this.ResponseClass = Response;
     }
 
-    mockRequestFactory({initPMVars={}, intReqHeaders={}, requestBody} = {} ){
+    mockRequestFactory({initPMVars={}, intReqHeaders={}, requestBody, max_chars} = {} ){
         
         mockSetCookieModule();
 
-        const pmVarCounter = new VariableCounter();
+        const pmVarCounter = new VariableCounter({max_chars});
         let wasTerminatedCount = 0;
     
         let PM_Vars = new Map();
