@@ -2,11 +2,9 @@
   "name": "Node via feature",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "23"
-    }
+    "ghcr.io/devcontainers/features/node:1": { "version": "23" }
   },
+  "postCreateCommand": "curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && sudo apt-get update && sudo apt-get install -y git-lfs && git lfs install && node -v && npm -v && git lfs version",
   "forwardPorts": [3000],
-  "postCreateCommand": "node -v && npm -v",
   "remoteUser": "vscode"
 }
