@@ -3,27 +3,28 @@ import { Readable } from 'stream';
 export class VariableCounter {
     constructor(config = {}){
         this.count = 0;
+        this.max_chars = config.max_chars || 1024;
         this.mostCautious = config.mostCautious || false;
         this.PM_Vars = new Map();
     }
 
     setVariable(key,value){
         
-        var add = key.length + key.length;
+        var add = key.length + value.length;
         this.count = this.count + add;
 
-        if(this.mostCautious && this.count > 1024){
-            throw new Error("Cautious usage violation detected and above setVariable limit of 1024");
+        if(this.mostCautious && this.count > this.max_chars){
+            throw new Error(`Cautious usage violation detected and above setVariable limit of ${this.max_chars}`);
 
         } else {
 
             var charCount = this.getCurrentMapCharCount();
             var newLength = key.length + (value + "").length;
 
-            if( newLength + charCount <= 1024){
+            if( newLength + charCount <= this.max_chars){
                 this.PM_Vars.set(key, value);
             } else {
-                throw new Error("Optimistic usage violation detected and above setVariable limit of 1024");
+                throw new Error(`Optimistic usage violation detected and above setVariable limit of ${this.max_chars}`);
             }
         }
 
