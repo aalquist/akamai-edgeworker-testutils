@@ -277,7 +277,7 @@ describe('VariableCounter Test Suite', () => {
 
   });
 
-  test("Test 3", () => {
+  test("Test 3 - error - default 1024", () => {
 
       var _key, _value;
       function setVariable(key, value){
@@ -314,6 +314,75 @@ describe('VariableCounter Test Suite', () => {
           expect(error.message).toBe("Optimistic usage violation detected and above setVariable limit of 1024");
       }
       expect(() => vCounter.setVariable("1", "") ).toThrow("Optimistic usage violation detected and above setVariable limit of 1024");
+
+
+  });
+
+  test("Test 3 - no error - 3500 max", () => {
+
+      var _key, _value;
+      function setVariable(key, value){
+          _key = key;
+          _value = value;
+      }
+
+      var vCounter = new VariableCounter( {max_chars:3500});
+      expect(vCounter.getCount() ).toEqual(0);
+
+      for (let i = 1; i < 103; i++) {
+          let num = i.toString().padStart(4, '0');
+
+          vCounter.setVariable(`a${num}`, `a${num}`);
+          expect(_key).toEqual(_value);
+
+          if( i == 10){
+              expect(vCounter.getCurrentMapCharCount()).toEqual(i * 10);
+
+          } else {
+              expect(vCounter.getCurrentMapCharCount()).toEqual(i * 10);
+
+          }
+          
+      }
+
+      expect(vCounter.getCurrentMapCharCount()).toEqual(102 * 10);
+      vCounter.setVariable(`_12`, `1`);
+      expect(vCounter.getCurrentMapCharCount()).toEqual(1024);
+
+      try {
+          vCounter.setVariable("1", "");
+      } catch (error) {
+          expect(error.message).toBe("Optimistic usage violation detected and above setVariable limit of 1024");
+      }
+      expect(() => vCounter.setVariable("1", "") ).not.toThrow("Optimistic usage violation detected and above setVariable limit of 1024");
+
+
+  });
+
+  test("Test 3 - error - 3500 max", () => {
+
+      const max_chars = 3500;
+      var vCounter = new VariableCounter( {max_chars});
+      expect(vCounter.getCount() ).toEqual(0);
+
+      const setVariableAttempts = 3500 / 10;
+
+      for (let i = 1; i < (setVariableAttempts + 1); i++) {
+          let num = i.toString().padStart(4, '0');
+
+          vCounter.setVariable(`a${num}`, `a${num}`);
+          expect(vCounter.getCurrentMapCharCount()).toEqual(i * 10);
+
+      }
+
+      expect(vCounter.getCurrentMapCharCount()).toEqual(setVariableAttempts * 10);
+      
+      try {
+          vCounter.setVariable("1", "");
+      } catch (error) {
+          expect(error.message).toBe(`Optimistic usage violation detected and above setVariable limit of ${max_chars}`);
+      }
+      expect(() => vCounter.setVariable("1", "") ).toThrow(`Optimistic usage violation detected and above setVariable limit of ${max_chars}`);
 
 
   });
