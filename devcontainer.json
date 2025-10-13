@@ -1,0 +1,10 @@
+{
+  "name": "Node via feature",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "23"
+    }
+  },
+  "postCreateCommand": "node -v"
+}
