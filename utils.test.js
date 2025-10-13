@@ -387,6 +387,33 @@ describe('VariableCounter Test Suite', () => {
 
   });
 
+  test("Test 3 - error - 3500 max w/ mockRequestFactory", () => {
+
+      const max_chars = 3500;
+      const factory = new EW_Mock_Factory({Request,Response});
+      const { requestMock, pmVarCounter : vCounter } = factory.mockRequestFactory({ max_chars });
+
+      expect(vCounter.count ).toEqual(0);
+
+      const setVariableAttempts = 3500 / 10;
+
+      for (let i = 1; i < (setVariableAttempts + 1); i++) {
+          let num = i.toString().padStart(4, '0');
+          requestMock.setVariable(`a${num}`, `a${num}`);
+          expect(vCounter.count).toEqual(i * 10);
+      }
+
+      expect(vCounter.count).toEqual(setVariableAttempts * 10);
+      
+      try {
+          requestMock.setVariable("1", "");
+      } catch (error) {
+          expect(error.message).toBe(`Optimistic usage violation detected and above setVariable limit of ${max_chars}`);
+      }
+      expect(() => requestMock.setVariable("1", "") ).toThrow(`Optimistic usage violation detected and above setVariable limit of ${max_chars}`);
+
+  });
+
   test("Test 4", () => {
 
       var _key, _value;
