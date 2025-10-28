@@ -96,12 +96,12 @@ export class EW_Mock_Factory {
         });
       
         requestMock.getHeader = jest.fn((arg) => {
-            const returnThis =  reqHeaders.get(arg);
+            const returnThis =  reqHeaders.get(arg.toLowerCase());
             return returnThis;
         });
       
         requestMock.setHeader = jest.fn((arg, val) => {
-            reqHeaders.set(arg, val);
+            reqHeaders.set(arg.toLowerCase(), val);
         });
     
         requestMock.getHeaders = jest.fn(() => {
