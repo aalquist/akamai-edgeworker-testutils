@@ -150,15 +150,25 @@ describe('test suite', () => {
 
   });
   
-  test('mockCookieModule', async () => {
+  test('mockCookieModule - upper from lower', async () => {
 
     const intReqHeaders = {'Cookie' : 'cookie1=cookie1value'};
     var { requestMock} = factory.mockRequestFactory({ intReqHeaders });
     mockCookieModule();
 
-    var cookieJar = new Cookies(requestMock.getHeader('Cookie'));
-    var cookieNames = cookieJar.names();
-    expect(cookieNames).toEqual(['cookie1']);
+    expect( new Cookies(requestMock.getHeader('Cookie')).names() ).toEqual(['cookie1']);
+    expect( new Cookies(requestMock.getHeader('cookie')).names() ).toEqual(['cookie1']);
+
+  });
+
+  test('mockCookieModule - both upper&lower from upper', async () => {
+
+    const intReqHeaders = {'Cookie' : 'Cookie1=cookie1value'};
+    var { requestMock} = factory.mockRequestFactory({ intReqHeaders });
+    mockCookieModule();
+
+    expect( new Cookies(requestMock.getHeader('cookie')).names() ).toEqual(['Cookie1']);
+    expect( new Cookies(requestMock.getHeader('Cookie')).names() ).toEqual(['Cookie1']);
 
   });
 
