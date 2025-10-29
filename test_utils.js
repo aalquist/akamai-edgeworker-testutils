@@ -76,9 +76,9 @@ export class EW_Mock_Factory {
         let reqHeaders = new Map();
         Object.keys(intReqHeaders).forEach( k => { 
             if( typeof intReqHeaders[k] == "string" ){ //it should be an array but usefull for most header use cases
-                reqHeaders.set(k, [intReqHeaders[k] ]); 
+                reqHeaders.set(k.toLowerCase(), [intReqHeaders[k] ]); 
             } else {
-                reqHeaders.set(k, intReqHeaders[k]); 
+                reqHeaders.set(k.toLowerCase(), intReqHeaders[k]); 
             }
         } );
     
@@ -96,12 +96,12 @@ export class EW_Mock_Factory {
         });
       
         requestMock.getHeader = jest.fn((arg) => {
-            const returnThis =  reqHeaders.get(arg);
+            const returnThis =  reqHeaders.get(arg.toLowerCase());
             return returnThis;
         });
       
         requestMock.setHeader = jest.fn((arg, val) => {
-            reqHeaders.set(arg, val);
+            reqHeaders.set(arg.toLowerCase(), val);
         });
     
         requestMock.getHeaders = jest.fn(() => {
