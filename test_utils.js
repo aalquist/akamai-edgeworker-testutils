@@ -76,9 +76,9 @@ export class EW_Mock_Factory {
         let reqHeaders = new Map();
         Object.keys(intReqHeaders).forEach( k => { 
             if( typeof intReqHeaders[k] == "string" ){ //it should be an array but usefull for most header use cases
-                reqHeaders.set(k, [intReqHeaders[k] ]); 
+                reqHeaders.set(k.toLowerCase(), [intReqHeaders[k] ]); 
             } else {
-                reqHeaders.set(k, intReqHeaders[k]); 
+                reqHeaders.set(k.toLowerCase(), intReqHeaders[k]); 
             }
         } );
     
