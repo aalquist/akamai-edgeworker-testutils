@@ -63,8 +63,11 @@ export class EW_Mock_Factory {
         this.ResponseClass = Response;
     }
 
-    mockRequestFactory({initPMVars={}, intReqHeaders={}, requestBody, max_chars} = {} ){
+    mockRequestFactory({initPMVars={}, intReqHeaders={}, initReqHeaders, requestBody, max_chars} = {} ){
         
+        if(initReqHeaders){
+            intReqHeaders = initReqHeaders; //backwards compatible misspelling
+        }
         mockSetCookieModule();
 
         const pmVarCounter = new VariableCounter({max_chars});
@@ -102,6 +105,10 @@ export class EW_Mock_Factory {
       
         requestMock.setHeader = jest.fn((arg, val) => {
             reqHeaders.set(arg.toLowerCase(), val);
+        });
+
+        requestMock.removeHeader = jest.fn((arg) => {
+            reqHeaders.delete(arg.toLowerCase());
         });
     
         requestMock.getHeaders = jest.fn(() => {
