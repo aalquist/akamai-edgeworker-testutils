@@ -28,6 +28,10 @@ describe('test suite - mockSRQ_Response', () => {
     expect(requestMock.getHeader('header1')).toEqual(['header1-value']);
     expect(requestMock.getHeader('header2')).toEqual(['header2-value']);
 
+    requestMock.removeHeader('header2');
+    expect(requestMock.removeHeader('header2')).toBeUndefined();
+    expect(requestMock.getHeader('header1')).toEqual(['header1-value']);
+
     expect(requestMock.getVariable('PM_USER_FOO')).toEqual('bar');
     expect(requestMock.getVariable('PM_USER_INFO')).toEqual('data123');
     
