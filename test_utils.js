@@ -88,6 +88,43 @@ export class EW_Mock_Factory {
         let requestMock = new this.RequestClass();
         let responseMock = new this.ResponseClass();
 
+        let respHeaders = new Map();
+
+        responseMock.getHeader = jest.fn((arg) => {
+            const returnThis = respHeaders.get(arg.toLowerCase());
+            return returnThis;
+        });
+
+        responseMock.setHeader = jest.fn((arg, val) => {
+            respHeaders.set(arg.toLowerCase(), val);
+        });
+
+        responseMock.addHeader = jest.fn((arg, val) => {
+            const key = arg.toLowerCase();
+            const existing = respHeaders.get(key);
+            if (existing) {
+                if (Array.isArray(existing)) {
+                    existing.push(val);
+                } else {
+                    respHeaders.set(key, [existing, val]);
+                }
+            } else {
+                respHeaders.set(key, val);
+            }
+        });
+
+        responseMock.removeHeader = jest.fn((arg) => {
+            respHeaders.delete(arg.toLowerCase());
+        });
+
+        responseMock.getHeaders = jest.fn(() => {
+            const respHeadersObj = Array.from(respHeaders).reduce((acc, [key, value]) => {
+                acc[key.toLowerCase()] = value;
+                return acc;
+            }, {});
+            return respHeadersObj;
+        });
+
         requestMock.getVariable = jest.fn( (arg) => {
             const returnThis =  PM_Vars.get(arg);
             return returnThis;

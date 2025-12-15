@@ -449,5 +449,114 @@ describe('VariableCounter Test Suite', () => {
       expect(() => vCounter.setVariable(variable_key, "") ).toThrow("PMUSER variable length is greater than 32 characters");
 
   });
+
+  test('responseMock.getHeader() - single header', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.setHeader('Content-Type', 'application/json');
+      expect(responseMock.getHeader('Content-Type')).toEqual('application/json');
+  });
+
+  test('responseMock.getHeader() - case insensitive', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.setHeader('content-type', 'application/json');
+      expect(responseMock.getHeader('CONTENT-TYPE')).toEqual('application/json');
+      expect(responseMock.getHeader('Content-Type')).toEqual('application/json');
+  });
+
+  test('responseMock.getHeader() - non-existent header', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      expect(responseMock.getHeader('Non-Existent')).toBeUndefined();
+  });
+
+  test('responseMock.setHeader() - replaces existing header', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.setHeader('X-Custom', 'value1');
+      expect(responseMock.getHeader('X-Custom')).toEqual('value1');
+      
+      responseMock.setHeader('X-Custom', 'value2');
+      expect(responseMock.getHeader('X-Custom')).toEqual('value2');
+  });
+
+  test('responseMock.addHeader() - add single header', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.addHeader('Set-Cookie', 'session=abc123');
+      expect(responseMock.getHeader('Set-Cookie')).toEqual('session=abc123');
+  });
+
+  test('responseMock.addHeader() - add multiple values to same header', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.addHeader('Set-Cookie', 'session=abc123');
+      responseMock.addHeader('Set-Cookie', 'token=xyz789');
+      
+      const cookies = responseMock.getHeader('Set-Cookie');
+      expect(Array.isArray(cookies)).toEqual(true);
+      expect(cookies).toEqual(['session=abc123', 'token=xyz789']);
+  });
+
+  test('responseMock.addHeader() - case insensitive', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.addHeader('set-cookie', 'session=abc123');
+      responseMock.addHeader('SET-COOKIE', 'token=xyz789');
+      
+      const cookies = responseMock.getHeader('Set-Cookie');
+      expect(Array.isArray(cookies)).toEqual(true);
+      expect(cookies).toEqual(['session=abc123', 'token=xyz789']);
+  });
+
+  test('responseMock.removeHeader() - removes existing header', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.setHeader('X-Custom', 'value');
+      expect(responseMock.getHeader('X-Custom')).toEqual('value');
+      
+      responseMock.removeHeader('X-Custom');
+      expect(responseMock.getHeader('X-Custom')).toBeUndefined();
+  });
+
+  test('responseMock.removeHeader() - case insensitive', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.setHeader('content-type', 'application/json');
+      responseMock.removeHeader('CONTENT-TYPE');
+      expect(responseMock.getHeader('content-type')).toBeUndefined();
+  });
+
+  test('responseMock.getHeaders() - returns all headers', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.setHeader('Content-Type', 'application/json');
+      responseMock.setHeader('X-Custom', 'custom-value');
+      
+      const headers = responseMock.getHeaders();
+      expect(headers['content-type']).toEqual('application/json');
+      expect(headers['x-custom']).toEqual('custom-value');
+  });
+
+  test('responseMock.getHeaders() - includes multiple header values', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      responseMock.addHeader('Set-Cookie', 'session=abc123');
+      responseMock.addHeader('Set-Cookie', 'token=xyz789');
+      responseMock.setHeader('Content-Type', 'text/plain');
+      
+      const headers = responseMock.getHeaders();
+      expect(Array.isArray(headers['set-cookie'])).toEqual(true);
+      expect(headers['set-cookie']).toEqual(['session=abc123', 'token=xyz789']);
+      expect(headers['content-type']).toEqual('text/plain');
+  });
+
+  test('responseMock.getHeaders() - empty when no headers set', () => {
+      var { responseMock } = factory.mockRequestFactory({});
+      
+      const headers = responseMock.getHeaders();
+      expect(headers).toEqual({});
+  });
 });
 
